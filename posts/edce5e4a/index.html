@@ -1,0 +1,1433 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="从源码分析sentry的错误信息收集, Weike">
+    <meta name="description" content="以前我是是瞎的，现在我看得见。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>从源码分析sentry的错误信息收集 | WeiKe</title>
+    <link rel="icon" type="image/png" href="https://bu.dusays.com/2021/07/25/6bd680e7f05c0.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="WeiKe" type="application/atom+xml">
+</head>
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1951635_oio5nhndef.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zyoushuo/Blog@latest/hexo/css/loading_style_2.css" >
+
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Daibi-mua/cdn3@main/wallhaven-8o5q3y.webp);
+       background-repeat:no-repeat;
+       background-size:cover;
+       background-attachment:fixed;
+    }
+</style>
+
+
+
+<body>
+  <div id='loader'>
+  <div class="outer_box">
+  <div class='loader_overlay'></div>
+  <div class='loader_cogs'>
+    <div class='loader_cogs__top'>
+      <div class='top_part'></div>
+      <div class='top_part'></div>
+      <div class='top_part'></div>
+      <div class='top_hole'></div>
+    </div>
+    <div class='loader_cogs__left'>
+      <div class='left_part'></div>
+      <div class='left_part'></div>
+      <div class='left_part'></div>
+      <div class='left_hole'></div>
+    </div>
+    <div class='loader_cogs__bottom'>
+      <div class='bottom_part'></div>
+      <div class='bottom_part'></div>
+      <div class='bottom_part'></div>
+      <div class='bottom_hole'></div>
+    </div>
+    <!-- <p>loading</p> -->
+  </div>
+  </div>
+</div>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="https://bu.dusays.com/2021/07/25/6bd680e7f05c0.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">WeiKe</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="https://bu.dusays.com/2021/07/25/6bd680e7f05c0.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">WeiKe</div>
+        <div class="logo-desc">
+            
+            以前我是是瞎的，现在我看得见。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/xixi-cmd/" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>My Github
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/xixi-cmd/" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="My Github" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/9.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">从源码分析sentry的错误信息收集</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="container content">
+
+    
+    <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/javascript/">
+                                <span class="chip bg-color">javascript</span>
+                            </a>
+                        
+                            <a href="/tags/%E5%89%8D%E7%AB%AF%E7%9B%91%E6%8E%A7/">
+                                <span class="chip bg-color">前端监控</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2018-08-18
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3.7k
+                </div>
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>raven.js 是 sentry 为 JavaScript 错误上报提供的 JS-SDK，本篇我们基于其源代码对其原理进行分析，本篇文章只分析前端部分，对应的文件目录是<code>https://github.com/getsentry/sentry-javascript/tree/master/packages/raven-js</code>。</p>
+<p>首先抛出几个问题：</p>
+<ul>
+<li><strong>raven.js 是如何收集浏览器错误信息的？</strong></li>
+<li><strong>raven.js 上报的错误信息格式是什么样的？又是如何把这些信息传给后端？支不支持合并上报？</strong></li>
+<li><strong>面包屑（breadcrumbs）是什么？raven.js 如何来收集面包屑信息？</strong></li>
+<li><strong>raven.js 如何和框架配合使用（比如 vue、react）？</strong></li>
+</ul>
+<p>在回答以上这几个问题之前，我们首先来对 raven.js 做一个宏观的分析，主要涉及其文件目录、所引用的第三方框架等。</p>
+<p>raven.js 的核心文件内容并不多，其中使用了三个第三方库，放在了 vendor 文件夹下：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/moll/json-stringify-safe">json-stringify-safe</a> ：一个对 <code>JSON.stringify</code> 的封装，安全的 json 序列化操作函数，不会抛出循环引用的错误。<ul>
+<li>这里面有一个注意点要单独说一下，我们熟知的 <code>JSON.stringify</code> , 可以接受三个参数：第一个参数是我们要序列化的对象；第二个参数是对其中键值对的处理函数；第三个参数是控制缩进空格。reven.js 的 <code>json-stringify-safe</code> 就是充分利用了这三个参数。</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/blueimp/JavaScript-MD5">md5</a>：js 的 md5 函数。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/csnover/TraceKit">TraceKit</a>：TraceKit 是一个已经比较完善的错误收集、堆栈格式化的库，reven.js 的功能在很大程度上对它有所依赖。</li>
+</ul>
+<p>除此之外，raven.js 支持插件，官方提供的一些知名库的 sentry 插件主要放在了 plugin 文件夹下面，raven.js 的一些核心文件，则放在了 src 文件夹下面。</p>
+<h3 id="raven-js-是如何收集错误信息的？"><a href="#raven-js-是如何收集错误信息的？" class="headerlink" title="raven.js 是如何收集错误信息的？"></a>raven.js 是如何收集错误信息的？</h3><p>我们知道，在前端收集错误，肯定离不开 <code>window.onerror</code> 这个函数，那么我们就从这个函数说起。</p>
+<p>实际上，这部分工作是 raven.js 引用的第三方库 TraceKit 完成的：</p>
+<pre class="line-numbers language-none"><code class="language-none">function installGlobalHandler() &#123;
+  if (_onErrorHandlerInstalled) &#123; &#x2F;&#x2F; 一个起到标志作用的全局变量
+    return;
+  &#125;
+  _oldOnerrorHandler &#x3D; _window.onerror; 
+  &#x2F;&#x2F; _oldOnerrorHandler 是防止对用户其他地方定义的回调函数进行覆盖
+  &#x2F;&#x2F; 该 _window 经过兼容，实际上就是 window
+  _window.onerror &#x3D; traceKitWindowOnError;
+  _onErrorHandlerInstalled &#x3D; true;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>相关错误回调函数交给 traceKitWindowOnError 处理，下面我们来看一下 traceKitWindowOnError 函数，为了避免太多冗余代码，我们仅分析一种主要情况：</p>
+<pre class="line-numbers language-none"><code class="language-none">function traceKitWindowOnError(msg, url, lineNo, colNo, ex) &#123;
+	
+	var exception &#x3D; utils.isErrorEvent(ex) ? ex.error : ex;
+	&#x2F;&#x2F;...
+    stack &#x3D; TraceKit.computeStackTrace(exception);
+    notifyHandlers(stack, true);
+    &#x2F;&#x2F;...
+   
+    &#x2F;&#x2F;...
+    if (_oldOnerrorHandler) &#123;
+       return _oldOnerrorHandler.apply(this, arguments);
+    &#125;
+    return false;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其中调用的最重要的一个函数，就是 computeStackTrace，而这个函数也是 TraceKit 的核心函数，简单来讲，它做的事情就是统一格式化报错信息调用栈，因为对于各个浏览器来说，返回的 Error 调用栈信息格式不尽相同，另外甚至还有的浏览器并不返回调用栈，computeStackTrace 函数对这些情况都做了兼容性处理，并且对于一些不返回调用栈的情况，还使用了 caller 来向上回溯函数的调用栈，最终把报错信息转化成一个键相同的对象数组，做到了报错信息格式的统一。</p>
+<p>notifyHandlers 函数则是通知相关的回调函数。 实际上，raven.js 在 install 函数中会调用 TraceKit.report.subscribe 函数，并把对错误的处理逻辑写入回调：</p>
+<pre class="line-numbers language-none"><code class="language-none">function subscribe(handler) &#123;
+    installGlobalHandler();
+    handlers.push(handler);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>以上过程完成了错误处理过程中的负责角色转换，并且借助 TraceKit，可以使 raven.js 得到一个结构比较清晰的带有格式化好的调用栈信息的错误内容对象，之后，raven.js 对错误内容进一步处理并最终上报。</p>
+<p>下面我们对错误处理 raven.js 控制的部分做了一些梳理：</p>
+<pre class="line-numbers language-none"><code class="language-none"> _handleOnErrorStackInfo: function(stackInfo, options) &#123;
+    options.mechanism &#x3D; options.mechanism || &#123;
+      type: &#39;onerror&#39;,
+      handled: false
+    &#125;;
+    &#x2F;&#x2F; mechanism 和错误统计来源有关
+
+    if (!this._ignoreOnError) &#123;
+      this._handleStackInfo(stackInfo, options);
+    &#125;
+&#125;,
+
+_handleStackInfo: function(stackInfo, options) &#123;
+    var frames &#x3D; this._prepareFrames(stackInfo, options);
+
+    this._triggerEvent(&#39;handle&#39;, &#123;
+      stackInfo: stackInfo,
+      options: options
+    &#125;);
+
+    this._processException(
+      stackInfo.name,
+      stackInfo.message,
+      stackInfo.url,
+      stackInfo.lineno,
+      frames,
+      options
+    );
+&#125;,
+
+_processException: function(type, message, fileurl, lineno, frames, options) &#123;
+    &#x2F;&#x2F; 首先根据 message 信息判断是否是需要忽略的错误类型
+    &#x2F;&#x2F; 然后判断出错的文件是否在黑名单中或者白名单中
+    &#x2F;&#x2F; 接下来对错误内容进行必要的整合与转换，构造出 data 对象
+    &#x2F;&#x2F; 最后调用上报函数
+    this._send(data);
+&#125;
+
+_send: function(data) &#123;
+	
+	&#x2F;&#x2F; 对 data 进一步处理，增加必要的信息，包括后续会提到的面包屑信息
+
+	&#x2F;&#x2F; 交由 _sendProcessedPayload 进行进一步处理
+	this._sendProcessedPayload(data);
+&#125;
+
+_sendProcessedPayload: function(data, callback) &#123;
+
+	&#x2F;&#x2F; 对 data 增加一些必要的元信息
+	&#x2F;&#x2F; 可以通过自定义 globalOptions.transport 的方式来自定义上报函数 
+	(globalOptions.transport || this._makeRequest).call(this, &#123;
+	     url: url,
+	     auth: auth,
+	     data: data,
+	     options: globalOptions,
+	     onSuccess: function success() &#123;
+	       
+	     &#125;,
+	     onError: function failure(error) &#123;
+	       
+	     &#125;
+	&#125;);
+&#125;    
+
+&#x2F;&#x2F; 真正发起请求的函数
+_makeRequest: function(opts) &#123;
+	&#x2F;&#x2F; 对于支持 fetch 的浏览器，直接使用 fetch 的方式发送 POST 请求
+	&#x2F;&#x2F; 如果浏览器不支持 fetch，则使用 XHR 的传统方式发送 POST 请求
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>实际上我们可以发现，从拿到已经初步格式化的报错信息，到最终真正执行数据上报，raven.js 的过程非常漫长，这其中我分析有如下几个原因：</p>
+<ul>
+<li>每个函数只处理一件或者一些事情，保持函数的短小整洁。</li>
+<li>部分函数可以做到复用（因为除了自动捕获错误的方式， raven.js 还提供通过 captureException，即 <code>try &#123;   doSomething(a[0]) &#125; catch(e) &#123;   Raven.captureException(e) &#125;</code> 的方式来上报错误，两个过程中有一些函数的调用是有重叠的）。</li>
+</ul>
+<p>但是笔者认为，raven.js 的代码设计还有很多值得优化的地方，比如：</p>
+<ul>
+<li>对最终上报数据（data）的属性处理和增加分散在多个函数，并且有较多可选项目，很难梳理出一个完整的 data 格式，并且不便于维护。</li>
+<li>部分函数的拆分必要性不足，并且会增加链路的复杂性，比如 <code>_processException </code>、<code>_sendProcessedPayload </code>、<code>_makeRequest </code>等都只在一个链路中被调用一次。</li>
+<li>部分属性重命名会造成资源浪费，由于 TraceKit 部分最终返回的数据格式并不完全满足 raven.js 的需要，所以 raven.js 之后又在较后阶段进行了重命名等处理，实际上这些内容完全可以通过一些其他的方式避免。</li>
+</ul>
+<p>最后，非常遗憾，sentry 目前完全不支持合并上报，就算是在同一个事件循环（甚至事件循环的同一个阶段，关于事件循环，可以参考我之前绘制的<a target="_blank" rel="noopener" href="https://www.processon.com/view/link/5b6ec8cbe4b053a09c2fb977">一张图</a>）的两个错误，sentry 都是分开来上报的，这里有一个简单例子：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">Raven<span class="token punctuation">.</span><span class="token function">config</span><span class="token punctuation">(</span><span class="token string">'http://8ec3f1a9f652463bb58191bd0b35f20c@localhost:9000/2'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">install</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">let</span> s <span class="token operator">=</span> window<span class="token punctuation">.</span>ss<span class="token punctuation">;</span>
+
+<span class="token keyword">try</span><span class="token punctuation">&#123;</span>
+    <span class="token keyword">let</span> b <span class="token operator">=</span> s<span class="token punctuation">.</span>b
+<span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    Raven<span class="token punctuation">.</span><span class="token function">captureException</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span>
+    <span class="token comment">// sentry should report error now</span>
+<span class="token punctuation">&#125;</span>
+
+s<span class="token punctuation">.</span><span class="token function">nomethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// sentry should report error now</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>以上例子中，sentry 会发送两个 POST 请求。</p>
+<h3 id="raven-js-最终上报数据的格式"><a href="#raven-js-最终上报数据的格式" class="headerlink" title="raven.js 最终上报数据的格式"></a>raven.js 最终上报数据的格式</h3><p>这一部分，我们并不会详细地分析 raven.js 上报的数据的每一项内容，仅会给读者展示一个比较典型的情况。</p>
+<p>我们看一下对于一个一般的 js 错误，raven.js 上报的 json 中包含哪些内容，下面是一个已经删掉一些冗余内容的典型上报信息：</p>
+<pre class="line-numbers language-none"><code class="language-none">&#123;
+  &quot;project&quot;: &quot;2&quot;,
+  &quot;logger&quot;: &quot;javascript&quot;,
+  &quot;platform&quot;: &quot;javascript&quot;,
+  &quot;request&quot;: &#123;
+    &quot;headers&quot;: &#123;
+      &quot;User-Agent&quot;: &quot;Mozilla&#x2F;5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit&#x2F;604.1.38 (KHTML, like Gecko) Version&#x2F;11.0 Mobile&#x2F;15A372 Safari&#x2F;604.1&quot;
+    &#125;,
+    &quot;url&quot;: &quot;http:&#x2F;&#x2F;localhost:63342&#x2F;sentry-test1&#x2F;test1.html?_ijt&#x3D;j54dmgn136gom08n8v8v9fdddu&quot;
+  &#125;,
+  &quot;exception&quot;: &#123;
+    &quot;values&quot;: [
+      &#123;
+        &quot;type&quot;: &quot;TypeError&quot;,
+        &quot;value&quot;: &quot;Cannot read property &#39;b&#39; of undefined&quot;,
+        &quot;stacktrace&quot;: &#123;
+          &quot;frames&quot;: [
+            &#123;
+              &quot;filename&quot;: &quot;http:&#x2F;&#x2F;localhost:63342&#x2F;sentry-test1&#x2F;test1.html?_ijt&#x3D;j54dmgn136gom08n8v8v9fdddu&quot;,
+              &quot;lineno&quot;: 19,
+              &quot;colno&quot;: 19,
+              &quot;function&quot;: &quot;?&quot;,
+              &quot;in_app&quot;: true
+            &#125;
+          ]
+        &#125;
+      &#125;
+    ],
+    &quot;mechanism&quot;: &#123;
+      &quot;type&quot;: &quot;generic&quot;,
+      &quot;handled&quot;: true
+    &#125;
+  &#125;,
+  &quot;transaction&quot;: &quot;http:&#x2F;&#x2F;localhost:63342&#x2F;sentry-test1&#x2F;test1.html?_ijt&#x3D;j54dmgn136gom08n8v8v9fdddu&quot;,
+  &quot;extra&quot;: &#123;
+    &quot;session:duration&quot;: 6
+  &#125;,
+  &quot;breadcrumbs&quot;: &#123;
+    &quot;values&quot;: [
+      &#123;
+        &quot;timestamp&quot;: 1534257309.996,
+        &quot;message&quot;: &quot;_prepareFrames stackInfo: [object Object]&quot;,
+        &quot;level&quot;: &quot;log&quot;,
+        &quot;category&quot;: &quot;console&quot;
+      &#125;,
+      &#x2F;&#x2F; ...
+   ]
+  &#125;,
+  &quot;event_id&quot;: &quot;ea0334adaf9d43b78e72da2b10e084a9&quot;,
+  &quot;trimHeadFrames&quot;: 0
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>其中支持的信息类型重点分为以下几种：</p>
+<ul>
+<li>sentry 基本配置信息，包括库本身的配置和使用者的配置信息，以及用户的一些自定义信息</li>
+<li>错误信息，主要包括错误调用栈信息</li>
+<li>request 信息，主要包括浏览器的 User-Agent、当前请求地址等</li>
+<li>面包屑信息，关于面包屑具体指的是什么，我们会在下一环节进行介绍</li>
+</ul>
+<h3 id="raven-js-面包屑收集"><a href="#raven-js-面包屑收集" class="headerlink" title="raven.js 面包屑收集"></a>raven.js 面包屑收集</h3><p>面包屑信息，也就是错误在发生之前，一些用户、浏览器的行为信息，raven.js 实现了一个简单的队列（有一个最大条目长度，默认为 100），这个队列在时刻记录着这些信息，一旦错误发生并且需要上报，raven.js 就把这个队列的信息内容，作为面包屑 breadcrumbs，发回客户端。</p>
+<p>面包屑信息主要包括这几类：</p>
+<ul>
+<li>用户对某个元素的点击或者用户对某个可输入元素的输入</li>
+<li>发送的 http 请求</li>
+<li>console 打印的信息（支持配置 ‘debug’, ‘info’, ‘warn’, ‘error’, ‘log’ 等不同级别）</li>
+<li>window.location 变化信息</li>
+</ul>
+<p>接下来，我们对这几类面包屑信息 sentry 的记录实现进行简单的分析。</p>
+<p>实际上，sentry 对这些信息记录的方式比较一致，都是通过对原声的函数进行包装，并且在包装好的函数中增加自己的钩子函数，来实现触发时候的事件记录，实际上，sentry 总共包装的函数有：</p>
+<ul>
+<li>window.setTimeout</li>
+<li>window.setInterval</li>
+<li>window.requestAnimationFrame</li>
+<li>EventTarget.addEventListener</li>
+<li>EventTarget.removeEventListener</li>
+<li>XMLHTTPRequest.open</li>
+<li>XMLHTTPRequest.send</li>
+<li>window.fetch</li>
+<li>History.pushState</li>
+<li>History.replaceState</li>
+</ul>
+<blockquote>
+<p>备注：这里包装的所有函数，其中有一部分只是使 raven.js 具有捕获回调函数中错误的能力（对回调函数进行包装）</p>
+</blockquote>
+<p>接下来我们看一段典型的代码，来分析 raven.js 是如何记录用户的点击和输入信息的（通过对 EventTarget.addEventListener 进行封装）：</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">function</span> <span class="token function">wrapEventTarget</span><span class="token punctuation">(</span><span class="token parameter">global</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+      <span class="token keyword">var</span> proto <span class="token operator">=</span> _window<span class="token punctuation">[</span>global<span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> _window<span class="token punctuation">[</span>global<span class="token punctuation">]</span><span class="token punctuation">.</span>prototype<span class="token punctuation">;</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>proto <span class="token operator">&amp;&amp;</span> proto<span class="token punctuation">.</span>hasOwnProperty <span class="token operator">&amp;&amp;</span> proto<span class="token punctuation">.</span><span class="token function">hasOwnProperty</span><span class="token punctuation">(</span><span class="token string">'addEventListener'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token function">fill</span><span class="token punctuation">(</span>
+          proto<span class="token punctuation">,</span>
+          <span class="token string">'addEventListener'</span><span class="token punctuation">,</span>
+          <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">orig</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">evtName<span class="token punctuation">,</span> fn<span class="token punctuation">,</span> capture<span class="token punctuation">,</span> secure</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+              <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>fn <span class="token operator">&amp;&amp;</span> fn<span class="token punctuation">.</span>handleEvent<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">//兼容通过 handleEvent 的方式进行绑定事件</span>
+                  fn<span class="token punctuation">.</span>handleEvent <span class="token operator">=</span> self<span class="token punctuation">.</span><span class="token function">wrap</span><span class="token punctuation">(</span>
+                    <span class="token punctuation">&#123;</span>
+                      mechanism<span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                        type<span class="token operator">:</span> <span class="token string">'instrument'</span><span class="token punctuation">,</span>
+                        data<span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                          target<span class="token operator">:</span> global<span class="token punctuation">,</span>
+                          <span class="token keyword">function</span><span class="token operator">:</span> <span class="token string">'handleEvent'</span><span class="token punctuation">,</span>
+                          handler<span class="token operator">:</span> <span class="token punctuation">(</span>fn <span class="token operator">&amp;&amp;</span> fn<span class="token punctuation">.</span>name<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token string">'&lt;anonymous>'</span>
+                        <span class="token punctuation">&#125;</span>
+                      <span class="token punctuation">&#125;</span>
+                    <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+                    fn<span class="token punctuation">.</span>handleEvent
+                  <span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span>
+              <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>err<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+              <span class="token punctuation">&#125;</span>
+
+              <span class="token keyword">var</span> before<span class="token punctuation">,</span> clickHandler<span class="token punctuation">,</span> keypressHandler<span class="token punctuation">;</span>
+
+              <span class="token keyword">if</span> <span class="token punctuation">(</span>
+                autoBreadcrumbs <span class="token operator">&amp;&amp;</span>
+                autoBreadcrumbs<span class="token punctuation">.</span>dom <span class="token operator">&amp;&amp;</span>
+                <span class="token punctuation">(</span>global <span class="token operator">===</span> <span class="token string">'EventTarget'</span> <span class="token operator">||</span> global <span class="token operator">===</span> <span class="token string">'Node'</span><span class="token punctuation">)</span>
+              <span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                <span class="token comment">// NOTE: generating multiple handlers per addEventListener invocation, should</span>
+                <span class="token comment">//       revisit and verify we can just use one (almost certainly)</span>
+                clickHandler <span class="token operator">=</span> self<span class="token punctuation">.</span><span class="token function">_breadcrumbEventHandler</span><span class="token punctuation">(</span><span class="token string">'click'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                keypressHandler <span class="token operator">=</span> self<span class="token punctuation">.</span><span class="token function">_keypressEventHandler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function-variable function">before</span> <span class="token operator">=</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">evt</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 钩子函数，用于在回调函数调用的时候记录信息</span>
+                  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>evt<span class="token punctuation">)</span> <span class="token keyword">return</span><span class="token punctuation">;</span>
+
+                  <span class="token keyword">var</span> eventType<span class="token punctuation">;</span>
+                  <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+                    eventType <span class="token operator">=</span> evt<span class="token punctuation">.</span>type<span class="token punctuation">;</span>
+                  <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                    <span class="token comment">// just accessing event properties can throw an exception in some rare circumstances</span>
+                    <span class="token comment">// see: https://github.com/getsentry/raven-js/issues/838</span>
+                    <span class="token keyword">return</span><span class="token punctuation">;</span>
+                  <span class="token punctuation">&#125;</span>
+                  <span class="token keyword">if</span> <span class="token punctuation">(</span>eventType <span class="token operator">===</span> <span class="token string">'click'</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token function">clickHandler</span><span class="token punctuation">(</span>evt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                  <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>eventType <span class="token operator">===</span> <span class="token string">'keypress'</span><span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token function">keypressHandler</span><span class="token punctuation">(</span>evt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+              <span class="token punctuation">&#125;</span>
+              <span class="token keyword">return</span> <span class="token function">orig</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span>
+                <span class="token keyword">this</span><span class="token punctuation">,</span>
+                evtName<span class="token punctuation">,</span>
+                self<span class="token punctuation">.</span><span class="token function">wrap</span><span class="token punctuation">(</span>
+                  <span class="token punctuation">&#123;</span>
+                    mechanism<span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                      type<span class="token operator">:</span> <span class="token string">'instrument'</span><span class="token punctuation">,</span>
+                      data<span class="token operator">:</span> <span class="token punctuation">&#123;</span>
+                        target<span class="token operator">:</span> global<span class="token punctuation">,</span>
+                        <span class="token keyword">function</span><span class="token operator">:</span> <span class="token string">'addEventListener'</span><span class="token punctuation">,</span>
+                        handler<span class="token operator">:</span> <span class="token punctuation">(</span>fn <span class="token operator">&amp;&amp;</span> fn<span class="token punctuation">.</span>name<span class="token punctuation">)</span> <span class="token operator">||</span> <span class="token string">'&lt;anonymous>'</span>
+                      <span class="token punctuation">&#125;</span>
+                    <span class="token punctuation">&#125;</span>
+                  <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+                  fn<span class="token punctuation">,</span>
+                  before
+                <span class="token punctuation">)</span><span class="token punctuation">,</span>
+                capture<span class="token punctuation">,</span>
+                secure
+              <span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+          <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+          wrappedBuiltIns
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">fill</span><span class="token punctuation">(</span>
+          proto<span class="token punctuation">,</span>
+          <span class="token string">'removeEventListener'</span><span class="token punctuation">,</span>
+          <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">orig</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+            <span class="token keyword">return</span> <span class="token keyword">function</span><span class="token punctuation">(</span><span class="token parameter">evt<span class="token punctuation">,</span> fn<span class="token punctuation">,</span> capture<span class="token punctuation">,</span> secure</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+              <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
+                fn <span class="token operator">=</span> fn <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>fn<span class="token punctuation">.</span>__raven_wrapper__ <span class="token operator">?</span> fn<span class="token punctuation">.</span>__raven_wrapper__ <span class="token operator">:</span> fn<span class="token punctuation">)</span><span class="token punctuation">;</span>
+              <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+                <span class="token comment">// ignore, accessing __raven_wrapper__ will throw in some Selenium environments</span>
+              <span class="token punctuation">&#125;</span>
+              <span class="token keyword">return</span> <span class="token function">orig</span><span class="token punctuation">.</span><span class="token function">call</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> evt<span class="token punctuation">,</span> fn<span class="token punctuation">,</span> capture<span class="token punctuation">,</span> secure<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+          <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
+          wrappedBuiltIns
+        <span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">&#125;</span>
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>以上代码兼容了通过 handleEvent 的方式进行绑定事件（如果没有听说过这种方式，可以在<a target="_blank" rel="noopener" href="http://www.ayqy.net/blog/handleevent%E4%B8%8Eaddeventlistener/">这里</a>补充一些相关的知识）。</p>
+<p>默认情况下，raven.js 只记录通过 <code>EventTarget.addEventListener</code> 绑定的点击和输入信息，实际上这是比较科学的，并且这些信息较为有效。另外，raven.js 也提供了记录所有点击和输入信息的可选项，其实现方式更为简单，直接在 document 上添加相关的监听即可。</p>
+<h3 id="raven-js-如何和框架配合使用"><a href="#raven-js-如何和框架配合使用" class="headerlink" title="raven.js 如何和框架配合使用"></a>raven.js 如何和框架配合使用</h3><p>raven.js 和框架配合使用的方式非常简单，但是我们要知道，很多框架内置了错误边界处理，或者对错误进行转义。以至于我们通过 window.onerror 的方式得不到完整的错误信息。同时，有些框架提供了错误处理的接口（比如 vue），利用错误处理的接口，我们能够获取到和错误有关的更多更重要的信息。</p>
+<p>raven.js 利用各个框架的官方接口，提供了 vue、require.js、angular、ember、react-native 等各个框架的官方插件。</p>
+<p>插件内容本身非常简单，我们可以看一下 vue 插件的代码：</p>
+<pre class="line-numbers language-none"><code class="language-none">function formatComponentName(vm) &#123;
+  if (vm.$root &#x3D;&#x3D;&#x3D; vm) &#123;
+    return &#39;root instance&#39;;
+  &#125;
+  var name &#x3D; vm._isVue ? vm.$options.name || vm.$options._componentTag : vm.name;
+  return (
+    (name ? &#39;component &lt;&#39; + name + &#39;&gt;&#39; : &#39;anonymous component&#39;) +
+    (vm._isVue &amp;&amp; vm.$options.__file ? &#39; at &#39; + vm.$options.__file : &#39;&#39;)
+  );
+&#125;
+
+function vuePlugin(Raven, Vue) &#123;
+  Vue &#x3D; Vue || window.Vue;
+
+  &#x2F;&#x2F; quit if Vue isn&#39;t on the page
+  if (!Vue || !Vue.config) return;
+
+  var _oldOnError &#x3D; Vue.config.errorHandler;
+  Vue.config.errorHandler &#x3D; function VueErrorHandler(error, vm, info) &#123;
+    var metaData &#x3D; &#123;&#125;;
+
+    &#x2F;&#x2F; vm and lifecycleHook are not always available
+    if (Object.prototype.toString.call(vm) &#x3D;&#x3D;&#x3D; &#39;[object Object]&#39;) &#123;
+      metaData.componentName &#x3D; formatComponentName(vm);
+      metaData.propsData &#x3D; vm.$options.propsData;
+    &#125;
+
+    if (typeof info !&#x3D;&#x3D; &#39;undefined&#39;) &#123;
+      metaData.lifecycleHook &#x3D; info;
+    &#125;
+
+    Raven.captureException(error, &#123;
+      extra: metaData
+    &#125;);
+
+    if (typeof _oldOnError &#x3D;&#x3D;&#x3D; &#39;function&#39;) &#123;
+      _oldOnError.call(this, error, vm, info);
+    &#125;
+  &#125;;
+&#125;
+
+module.exports &#x3D; vuePlugin;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>应该不用进行过多解释。</p>
+<p>你也许想知道为什么没有提供 react 插件，事实上，react 16 以后才引入了<a target="_blank" rel="noopener" href="https://reactjs.org/blog/2017/07/26/error-handling-in-react-16.html">Error Boundaries</a>，这种方式由于灵活性太强，并不太适合使用插件，另外，就算不使用插件，也非常方便地使用 raven.js 进行错误上报，可以参考<a target="_blank" rel="noopener" href="https://docs.sentry.io/clients/javascript/integrations/react/">这里</a></p>
+<blockquote>
+<p>但笔者认为，目前 react 的引入方式会对源代码进行侵入，并且比较难通过构建的方式进行 sentry 的配置，也许我们可以寻找更好的方式。</p>
+</blockquote>
+<p>完。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">ChenShang</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="http://example.com/posts/edce5e4a/">http://example.com/posts/edce5e4a/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">ChenShang</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/javascript/">
+                                    <span class="chip bg-color">javascript</span>
+                                </a>
+                            
+                                <a href="/tags/%E5%89%8D%E7%AB%AF%E7%9B%91%E6%8E%A7/">
+                                    <span class="chip bg-color">前端监控</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/posts/a9157bc/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://upimage.alexhchu.com/2020/10/31/64193ef4eec34.jpg" class="responsive-img" alt="使用 Node.js 打造多用户实时监控系统">
+                        
+                        <span class="card-title">使用 Node.js 打造多用户实时监控系统</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2018-10-21
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            ChenShang
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Node-js/">
+                        <span class="chip bg-color">Node.js</span>
+                    </a>
+                    
+                    <a href="/tags/javascript/">
+                        <span class="chip bg-color">javascript</span>
+                    </a>
+                    
+                    <a href="/tags/Rx-js/">
+                        <span class="chip bg-color">Rx.js</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/posts/96d2f3ed/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="一篇关于react历史的流水账">
+                        
+                        <span class="card-title">一篇关于react历史的流水账</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2018-06-10
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            ChenShang
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/react/">
+                        <span class="chip bg-color">react</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE' || selection.getRangeAt(0).commonAncestorContainer.nodeName === 'CODE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: WeiKe<br />'
+            + '文章作者: ChenShang<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="4931560478"
+                   fixed='true'
+                   autoplay='true'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2021</span>
+            
+            <span id="year">2019</span>
+            <a href="/about" target="_blank">ChenShang</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+                &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                        class="white-color">249.6k</span>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+                <span id="sitetime"> Loading ...</span>
+                <script>
+                    var calcSiteTime = function () {
+                        var seconds = 1000;
+                        var minutes = seconds * 60;
+                        var hours = minutes * 60;
+                        var days = hours * 24;
+                        var years = days * 365;
+                        var today = new Date();
+                        var startYear = "2019";
+                        var startMonth = "5";
+                        var startDate = "11";
+                        var startHour = "0";
+                        var startMinute = "0";
+                        var startSecond = "0";
+                        var todayYear = today.getFullYear();
+                        var todayMonth = today.getMonth() + 1;
+                        var todayDate = today.getDate();
+                        var todayHour = today.getHours();
+                        var todayMinute = today.getMinutes();
+                        var todaySecond = today.getSeconds();
+                        var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                        var diff = t2 - t1;
+                        var diffYears = Math.floor(diff / years);
+                        var diffDays = Math.floor((diff / days) - diffYears * 365);
+
+                        // 区分是否有年份.
+                        var language = 'zh-CN';
+                        if (startYear === String(todayYear)) {
+                            document.getElementById("year").innerHTML = todayYear;
+                            var daysTip = 'This site has been running for ' + diffDays + ' days';
+                            if (language === 'zh-CN') {
+                                daysTip = '本站已运行 ' + diffDays + ' 天';
+                            } else if (language === 'zh-HK') {
+                                daysTip = '本站已運行 ' + diffDays + ' 天';
+                            }
+                            document.getElementById("sitetime").innerHTML = daysTip;
+                        } else {
+                            document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                            var yearsAndDaysTip = 'This site has been running for ' + diffYears + ' years and '
+                                + diffDays + ' days';
+                            if (language === 'zh-CN') {
+                                yearsAndDaysTip = '本站已运行 ' + diffYears + ' 年 ' + diffDays + ' 天';
+                            } else if (language === 'zh-HK') {
+                                yearsAndDaysTip = '本站已運行 ' + diffYears + ' 年 ' + diffDays + ' 天';
+                            }
+                            document.getElementById("sitetime").innerHTML = yearsAndDaysTip;
+                        }
+                    }
+
+                    calcSiteTime();
+                </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/xixi-cmd" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:3225454747@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=3225454747" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 3225454747" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+<script>
+  var endLoading = function () {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loader').classList.add("loading");
+  }
+  window.addEventListener('load',endLoading);
+</script>
+<!-- hexo injector body_end start -->
+  <script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/hexo-github-calendar@1.20/hexo_githubcalendar.js"></script>
+  <script data-pjax>
+        function GithubCalendarConfig(){
+            var git_githubapiurl ="https://python-github-calendar-api.vercel.app/api?stsewd";
+            var git_color =['#e4dfd7', '#f9f4dc', '#f7e8aa', '#f7e8aa', '#f8df72', '#fcd217', '#fcc515', '#f28e16', '#fb8b05', '#d85916', '#f43e06'];
+            var git_user ="stsewd";
+            var parent_div_git = document.getElementById('indexCard');
+            var git_div_html = '<div class="container"><div class="card" style="width:100%;height:auto;padding:10px;"><div id="github_loading" style="width:10%;height:100%;margin:0 auto;display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg></div><div id="github_container"></div></div></div>';
+            if(parent_div_git && location.pathname =='/'){
+                console.log('已挂载github calendar')
+                // parent_div_git.innerHTML=git_div_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",git_div_html) // 有报错，但不影响使用(支持pjax跳转)
+            };
+            GithubCalendar(git_githubapiurl,git_color,git_user)
+        }
+        if(document.getElementById('indexCard')){
+            GithubCalendarConfig()
+        }
+    </script>
+    <style>#github_container{min-height:280px}@media screen and (max-width:650px) {#github_container{background-image:;min-height:0px}}</style>
+    <style></style><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+
+</html>

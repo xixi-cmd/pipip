@@ -1,0 +1,149 @@
+/* Here is your custom css styles. */
+.nav-show {
+    overflow: hidden;
+    /* background: #34495e; */
+}
+
+ul:not(.browser-default)>li {
+    overflow: hidden;
+    border-radius: 20px;
+    margin-right: 5px;
+}
+
+.page-footer {
+    border-radius: 10px;
+    height: 200px;
+    color: #fff;
+    background: linear-gradient(to right, #ff75c3, #ffa647, #ffe83f, #9fff5b, #70e2ff, #cd93ff);
+}
+
+.copy-right {
+    color: #fff;
+}
+
+header .nav-transparent,
+#headNav {
+    transition: 0.3s;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+.bg-cover {
+
+    background: transparent !important;
+}
+
+.carousel-control:hover {
+       border-radius: 45px;
+       background: transparent;
+       cursor: pointer;
+       z-index: 100;
+}
+
+.femail {
+    box-shadow: 0 15px 35px rgb(50 50 93 / 10%),
+    0 5px 15px rgb(0 0 0 / 7%) !important;
+    height: 350px;
+    padding-top: 5px;
+    border-radius: 10px;
+    background: #fff;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.femail .title {
+    margin-top: 20px !important;
+    margin-bottom: 10px !important;
+}
+
+.progress-bar {
+    bottom: 0;
+    background: linear-gradient(to right, #ff75c3, #ffa647, #ffe83f, #9fff5b, #70e2ff, #cd93ff);
+
+}
+
+.femail .row {
+    font-size: 16px;
+}
+.subtitle {
+    text-align: center;
+}
+
+header .brand-logo .logo-span {
+    /* color: #111; */
+}
+
+header .nav-transparent {
+    background: transparent !important;
+}
+
+.github-corner svg {
+    color: #000 !important;
+}
+
+#artDetail .reprint {
+    height: 150px !important;
+    box-shadow: 0 15px 35px rgb(50 50 93 / 10%),
+    0 5px 15px rgb(0 0 0 / 7%) !important;
+    border-radius: 20px;
+    font-size: large;
+    margin-bottom: 2rem;
+    line-height: 3rem;
+}
+
+blockquote {
+    background-color: #fff;
+    box-shadow: 0 15px 35px rgb(50 50 93 / 10%),
+    0 5px 15px rgb(0 0 0 / 7%) !important;
+    border-radius: 5px;
+}
+
+.articles .row {
+    border-radius: 10px;
+    background: linear-gradient(to bottom, #ff75c3, #ffa647, #ffe83f, #9fff5b, #70e2ff, #cd93ff);
+    margin-bottom: 2rem;
+}
+
+#articleContent img {
+    border-radius: 10px;
+}
+
+header .brand-logo .waves-effect {
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.z-lan {
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 15px 35px rgb(50 50 93 / 10%),
+    0 5px 15px rgb(0 0 0 / 7%) !important;
+    height: 40px;
+    width: 500px;
+    padding-top: 5px;
+    border-radius: 10px;
+    background: #fff;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.z-lan p {
+    margin: 4px;
+    text-align: center;
+        font-size: 16px;
+}
+
+@media screen and (max-width: 780px) {
+        .z-lan {
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 15px 35px rgb(50 50 93 / 10%),
+                0 5px 15px rgb(0 0 0 / 7%) !important;
+            height: 40px;
+            width: 300px;
+            padding-top: 5px;
+            border-radius: 10px;
+            background: #fff;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+}

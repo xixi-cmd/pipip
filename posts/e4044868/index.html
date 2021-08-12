@@ -1,0 +1,1269 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="JS逆向反调试和反反调试, Weike">
+    <meta name="description" content="以前我是是瞎的，现在我看得见。">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>JS逆向反调试和反反调试 | WeiKe</title>
+    <link rel="icon" type="image/png" href="https://bu.dusays.com/2021/07/25/6bd680e7f05c0.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="WeiKe" type="application/atom+xml">
+</head>
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1951635_oio5nhndef.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zyoushuo/Blog@latest/hexo/css/loading_style_2.css" >
+
+   <style>
+    body{
+       background-image: url(https://cdn.jsdelivr.net/gh/Daibi-mua/cdn3@main/wallhaven-8o5q3y.webp);
+       background-repeat:no-repeat;
+       background-size:cover;
+       background-attachment:fixed;
+    }
+</style>
+
+
+
+<body>
+  <div id='loader'>
+  <div class="outer_box">
+  <div class='loader_overlay'></div>
+  <div class='loader_cogs'>
+    <div class='loader_cogs__top'>
+      <div class='top_part'></div>
+      <div class='top_part'></div>
+      <div class='top_part'></div>
+      <div class='top_hole'></div>
+    </div>
+    <div class='loader_cogs__left'>
+      <div class='left_part'></div>
+      <div class='left_part'></div>
+      <div class='left_part'></div>
+      <div class='left_hole'></div>
+    </div>
+    <div class='loader_cogs__bottom'>
+      <div class='bottom_part'></div>
+      <div class='bottom_part'></div>
+      <div class='bottom_part'></div>
+      <div class='bottom_hole'></div>
+    </div>
+    <!-- <p>loading</p> -->
+  </div>
+  </div>
+</div>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="https://bu.dusays.com/2021/07/25/6bd680e7f05c0.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">WeiKe</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="https://bu.dusays.com/2021/07/25/6bd680e7f05c0.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">WeiKe</div>
+        <div class="logo-desc">
+            
+            以前我是是瞎的，现在我看得见。
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/xixi-cmd/" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>My Github
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/xixi-cmd/" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="My Github" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://upimage.alexhchu.com/2020/10/22/0c7db8ea2588a.png')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">JS逆向反调试和反反调试</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="container content">
+
+    
+    <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E6%95%99%E7%A8%8B/">
+                                <span class="chip bg-color">教程</span>
+                            </a>
+                        
+                            <a href="/tags/Python/">
+                                <span class="chip bg-color">Python</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/web/" class="post-category">
+                                web
+                            </a>
+                        
+                            <a href="/categories/web/JS/" class="post-category">
+                                JS
+                            </a>
+                        
+                            <a href="/categories/web/JS/JS%E9%80%86%E5%90%91/" class="post-category">
+                                JS逆向
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2021-01-26
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    3.6k
+                </div>
+                
+
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
+
+        
+        <!-- 代码块折行 -->
+        <style type="text/css">
+            code[class*="language-"], pre[class*="language-"] { white-space: pre-wrap !important; }
+        </style>
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="写在最前面"><a href="#写在最前面" class="headerlink" title="写在最前面"></a>写在最前面</h1><p>本文转载于CSDN大佬: <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44504978">@花爷</a><br>已获得其本人允许<br> 根据《中华人民共和国著作权法》规定</p>
+<p>1、已在报刊上刊登或者网络上传播的作品，除著作权人声明或者上载该作品的网络服务提供者受著作权人的委托声明不得转载、摘编的以外，网站予以转载、摘编，并按有关规定支付报酬、注明出处的，不构成侵权。</p>
+<p>2、为个人学习、研究或者欣赏，使用他人已经发表的作品而转载的不属于侵权，可以不经著作权人许可，不向其支付报酬，但应当指明作者姓名、作品名称，并且不得侵犯著作权人依照本法享有的其他权利。</p>
+<h1 id="切入JS逆向反调试"><a href="#切入JS逆向反调试" class="headerlink" title="切入JS逆向反调试"></a>切入JS逆向反调试</h1><p><span style = "font-size: 20px;">现在调试JS各种反调，既然有反调，那我们就肯定有过这个反调试的方法。这里给大家推荐一个JS逆向练习平台。<span></p>
+<p><a target="_blank" rel="noopener" href="http://spider.wangluozhe.com/">JS逆向练习平台</a></p>
+<p>1.我们这里讲的是第5题，它这里的反调试是不让你打开开发者人员工具。打开开发者人员工具，就自动返回主页面。<br><img src="https://img-blog.csdnimg.cn/2021012414190817.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDUwNDk3OA==,size_16,color_FFFFFF,t_70#pic_center"></p>
+<p>2.思路：a：它不让我打开开发者人员工具，肯定是在打开开发者人员工具之后它检测了什么玩意<br><img src="https://img-blog.csdnimg.cn/20210124142517995.png#pic_center"></p>
+<pre class="line-numbers language-text" data-language="text"><code class="language-text">b：.那他就是调用了浏览器内置的东西，我这个就解决方法是下页面事件监听断点，如图：<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><img src="https://img-blog.csdnimg.cn/20210124144325107.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDUwNDk3OA==,size_16,color_FFFFFF,t_70#pic_center"></p>
+<p>这里的意思：<br>事件侦听器断点 event listener breakpoints<br>事件突变 Dom mutation<br>下面还有一些我就不翻译了，有兴趣可以去看看，翻译一下，小弟英语不好。<br>下这个断点之后，跳转完页面，加载ok之后他就会断下来，如图，我们就可以得到这道题的答案了。<br><img src="https://img-blog.csdnimg.cn/20210124145214853.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NDUwNDk3OA==,size_16,color_FFFFFF,t_70#pic_center"></p>
+<p>答案大佬打了一下马赛克，这边大佬不公布答案，大家可以尝试一下。</p>
+<h1 id="切入JS反反调试"><a href="#切入JS反反调试" class="headerlink" title="切入JS反反调试"></a>切入JS反反调试</h1><div class='tip'><p>你千万别跟任何人谈任何事情。你只要一谈起，就会想念起每一个人来，我只知道我很想念我所谈到的每一个人。——Ｊ·Ｄ·塞林格《麦田里的守望者》<p></div>
+
+<h2 id="JS逆向-过无限debugger调试"><a href="#JS逆向-过无限debugger调试" class="headerlink" title="[JS逆向]过无限debugger调试"></a>[JS逆向]过无限debugger调试</h2><p><span style="font-size: 20px;">在JS逆向过程当中，获取用发F12抓取XHR的时候，常常会发现网页不让我们打开F12开发人员工具。如果这个时候我们开启工具中禁止断点之后，虽然我们可以抓取xhr，但是这样我们无法调试代码部分了，开启了禁止断点之后，我们自己也无法在代码当中下断点了</span></p>
+<h3 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h3><p>在采集某些网站时，目标网站为了防止别人分析调试前端代码，采取了反调试措施。其中一种做法是当你按F12进入浏览器控制台后，浏览器会自动命中debugger断点，并且无限循环，导致无法调试。以食品药品监督管理总局数据查询网站为例。如下图:<br><img src="https://img-blog.csdnimg.cn/20190810135056101.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI2NzEyOTc3,size_16,color_FFFFFF,t_70"></p>
+<p>按F12进入控制台</p>
+<p><img src="https://img-blog.csdnimg.cn/20190810135323385.gif"></p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><h4 id="禁用浏览器断点"><a href="#禁用浏览器断点" class="headerlink" title="禁用浏览器断点"></a>禁用浏览器断点</h4><p><img src="https://img-blog.csdnimg.cn/20190810135629767.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzI2NzEyOTc3,size_16,color_FFFFFF,t_70"><br>点击图中按钮，之后将不会再命中任何断点。这种方法虽然可以防止无限循环命中debugger断点，但是也存在很大的缺陷，因为对于其他代码，我们还是需要断点调试功能的。所以这个方法仅限于静态分析。</p>
+<h4 id="利用中间人修改响应代码"><a href="#利用中间人修改响应代码" class="headerlink" title="利用中间人修改响应代码"></a>利用中间人修改响应代码</h4><p>用Fiddler删除响应代码中的debugger即可达到目的<br>实现的核心代码很简单:如下</p>
+<pre class="line-numbers language-Python" data-language="Python"><code class="language-Python">FiddlerApplication.BeforeRequest +&#x3D; delegate(Fiddler,Session oS)
+&#123;
+     oS.bBufferResponse &#x3D; true;
+&#125;
+
+FiddlerApplication.BeforeResponse +&#x3D; (oS) &#x3D;&gt;
+&#123;
+     oS.utilDecodeResponse();
+     oS.utilReplaceLnResponse(&quot;debugger&quot;, String.Empty);
+     &#x2F;*
+     *
+     Code 实在是找不到FiddlerCode的代码格式，只能用Python代替一下
+     *
+     *&#x2F;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>实际使用中发现,位于响应html页的debugger被删除了，但是仍然会弹出断点。分析页面得到，debugger断点位置一共有2处 第一处位于”<a target="_blank" rel="noopener" href="http://qy1.sfda.gov.cn/datasearch/face3/dir.html&quot;debugger%E4%BB%A5%E6%98%8E%E6%96%87%E5%BD%A2%E5%BC%8F%E5%AD%98%E5%9C%A8,Fiddler%E5%88%A0%E9%99%A4%E7%9A%84%E5%B0%B1%E6%98%AF%E8%BF%99%E9%83%A8%E5%88%86%E3%80%82%E9%80%9A%E8%BF%87%E5%88%86%E6%9E%90%E5%8F%A6%E4%B8%80%E5%A4%84debugger%E4%BD%8D%E7%BD%AE%EF%BC%8C%E5%8F%91%E7%8E%B0debugger%E6%98%AF%E9%80%9A%E8%BF%87eval%E5%8E%BB%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%8C%E5%93%8D%E5%BA%94%E4%B8%AD%E5%B9%B6%E6%B2%A1%E6%9C%89%E7%9B%B4%E6%8E%A5%E5%87%BA%E7%8E%B0debugger%E5%AD%97%E6%AE%B5%EF%BC%8C%E6%89%80%E4%BB%A5%E6%B2%A1%E6%9C%89%E8%A2%AB%E6%9B%BF%E6%8D%A2%E6%8E%89%E3%80%82">http://qy1.sfda.gov.cn/datasearch/face3/dir.html&quot;debugger以明文形式存在,Fiddler删除的就是这部分。通过分析另一处debugger位置，发现debugger是通过eval去实现的，响应中并没有直接出现debugger字段，所以没有被替换掉。</a></p>
+<p>在Console输入</p>
+<pre class="line-numbers language-JS" data-language="JS"><code class="language-JS">&gt; _$uj()
+&lt;· &quot;eval&quot;
+&gt; _$dQ()
+&lt;· &quot;(function() &#123;var a &#x3D; new Date(); debugger; return new Date() - a &gt; 100;&#125;())&quot;
+&gt; _<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>代码经过强混淆，读者看到的函数名称是和我不一样的。</p>
+<h4 id="利用浏览器插件修改响应代码"><a href="#利用浏览器插件修改响应代码" class="headerlink" title="利用浏览器插件修改响应代码"></a>利用浏览器插件修改响应代码</h4><p>具体原理和使用Fiddler是相同的，通过浏览器插件将请求重定向以达到修改代码的目的。也存在相同的问题</p>
+<h4 id="手动替换代码"><a href="#手动替换代码" class="headerlink" title="手动替换代码"></a>手动替换代码</h4><p>既然修改响应结果无法满足需求，那只能从代码中寻找突破了。<br>以本文的网站为例，查看debugger断点处的调用栈堆，找到调用位置。其实在上文中间人方式结尾处已经发现了。是通过eval去实现断点的。我们先构造一个空方法</p>
+<p><img src="https://img-blog.csdnimg.cn/20190810153307160.png"><br>将目标网站的方法偷梁换柱<br><img src="https://img-blog.csdnimg.cn/20190810153643439.png"><br>由于网站代码强混淆，所以函数名称会不一样。下面放个GIF图<br><img src="https://img-blog.csdnimg.cn/20190810154011549.gif"><br>完美解决 但是注意不要刷新，页面刷新后需要重新替换。</p>
+<h4 id="傻瓜式技巧"><a href="#傻瓜式技巧" class="headerlink" title="傻瓜式技巧"></a>傻瓜式技巧</h4><p>上文的几种方法，要么是存在缺陷，要么是步骤较为繁琐，我这边还有个压箱底的神技，不需要写任何代码，鼠标点点点就能够满足需求，为了避免伸手党，所以不放了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><!-- tab -->
+<p>1-DebugPort<br>2-KdDisableDebugger<br>3-IsDebuggerPresent和CheckRemoteDebuggerPresent<br>4-hook</p>
+<p><a target="_blank" rel="noopener" href="http://www.moguizuofang.com/bbs/thread-3235-1-1.html">http://www.moguizuofang.com/bbs/thread-3235-1-1.html</a></p>
+<p><a target="_blank" rel="noopener" href="http://bbs.pediy.com/showthread.php?t=126802">http://bbs.pediy.com/showthread.php?t=126802</a></p>
+<p><a target="_blank" rel="noopener" href="http://bbs.pediy.com/showthread.php?t=129810">http://bbs.pediy.com/showthread.php?t=129810</a></p>
+<p>DebugPort是进程EPROCESS结构里的一个成员，指向了一个用于进程调试的对象，如果一个进程不在被调试的时候那么就是NULL，否则他是一个指针。该对象负责在调试器与被调进程之间进行调试事件传递，因此被称为调试端口。被调试程序的事件由这个端口发送到调试器进程的。</p>
+<p>HOOK系统中一些与调试相关的函数，也可以防止被各种调试器调试。比如某款程序在内核中就HOOK了下面这些函数：<br>NtOpenThread（）：防止调试器在程序内部创建线程<br>NtOpenProcess（）：防止OD（OllyDbg）等调试工具在进程列表中看到<br>KiAttachProcess（）：防止被附加上<br>NtReadVirtualMemory（）：防止被读内存<br>NtWriteVirtualMemory（）：防止内存被写<br>KdReceivePacket（）：KDCOME.dll 中Com串口接收数据函数<br>KdSendPacket（）：KDCOME.dll 中Com串口发送数据函数，可以HOOK这2个函数用来防止双机调试。</p>
+<p>反反调试的思路也就出来了。针对清零DebugPort来防止调试的方法，可以通过对DebugPort内存地址下内存断点：<br>ba w4 debugport_addr<br>这样一旦有程序代码在修改DebugPort，就会被断下，从而找到对应的清零DebugPort的反调试代码，然后对这部分代码进行patch（用机器码0×90(nop)或者0xC3(ret)取代），从而让它失去作用，当然有的程序会对代码进行校验，一旦发现代码被篡改，就会采取保护措施，比如抛出异常或者退出程序。<br>针对调用系统函数如KdDisableDebugger（）来检测调试器存在从而禁止被调试的方法，可以在对应的这些函数的地址下断点，然后对相关的代码进行patch，然后使该函数判断失效。比如：<br>bp KdDisableDebugger、eb xxx<br>针对通过HOOK系统函数来防止进程被调试的方法，可以直接将这些系统函数的钩子直接恢复，可以通过内核驱动程序或者借助一些ARK工具（比如Pchunter）就可以直接检测和恢复这些函数钩子。</p>
+<!-- endtab -->
+
+<h1 id="总结-2"><a href="#总结-2" class="headerlink" title="总结 -2"></a>总结 -2</h1><!-- tab -->
+<p>在调试一些病毒程序的时候，可能会碰到一些反调试技术，也就是说，被调试的程序可以检测到自己是否被调试器附加了，如果探知自己正在被调试，肯定是有人试图反汇编啦之类的方法破解自己。为了了解如何破解反调试技术，首先我们来看看反调试技术。</p>
+<p>一、Windows API方法</p>
+<p>Win32提供了两个API, IsDebuggerPresent和CheckRemoteDebuggerPresent可以用来检测当前进程是否正在被调试，以IsDebuggerPresent函数为例，例子如下：</p>
+<pre class="line-numbers language-shell" data-language="shell"><code class="language-shell">BOOL ret <span class="token operator">=</span> IsDebuggerPresent<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+printf<span class="token punctuation">(</span><span class="token string">"ret = %d<span class="token entity" title="\n">\n</span>"</span>, ret<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>破解方法很简单，就是在系统里将这两个函数hook掉，让这两个函数一直返回false就可以了，网上有很多做hook API工作的工具，也有很多工具源代码是开放的，所以这里就不细谈了。</p>
+<p>二、查询进程PEB的BeingDebugged标志位</p>
+<p>当进程被调试器所附加的时候，操作系统会自动设置这个标志位，因此在程序里定期查询这个标志位就可以了，例子如下：</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">bool PebIsDebuggedApproach()
+&#123;
+       char result &#x3D; 0;
+       __asm
+       &#123;
+&#x2F;&#x2F; 进程的PEB地址放在fs这个寄存器位置上
+              mov eax, fs:[30h]
+&#x2F;&#x2F; 查询BeingDebugged标志位
+              mov al, BYTE PTR [eax + 2]
+              mov result, al
+       &#125;
+
+       return result !&#x3D; 0;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>三、查询进程PEB的NtGlobal标志位</p>
+<p>跟第二个方法一样，当进程被调试的时候，操作系统除了修改BeingDebugged这个标志位以外，还会修改其他几个地方，其中NtDll中一些控制堆（Heap）操作的函数的标志位就会被修改，因此也可以查询这个标志位，例子如下：</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">bool PebNtGlobalFlagsApproach()
+&#123;
+       int result &#x3D; 0;
+
+       __asm
+       &#123;
+  &#x2F;&#x2F; 进程的PEB
+              mov eax, fs:[30h]
+  &#x2F;&#x2F; 控制堆操作函数的工作方式的标志位
+              mov eax, [eax + 68h]
+  &#x2F;&#x2F; 操作系统会加上这些标志位FLG_HEAP_ENABLE_TAIL_CHECK,
+  &#x2F;&#x2F; FLG_HEAP_ENABLE_FREE_CHECK and FLG_HEAP_VALIDATE_PARAMETERS，
+  &#x2F;&#x2F; 它们的并集就是x70
+  &#x2F;&#x2F;
+  &#x2F;&#x2F; 下面的代码相当于C&#x2F;C++的
+  &#x2F;&#x2F;     eax &#x3D; eax &amp; 0x70
+              and eax, 0x70
+              mov result, eax
+       &#125;
+
+       return result !&#x3D; 0;
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>四、查询进程堆的一些标志位</p>
+<p>这个方法是第三个方法的变种，只要进程被调试，进程在堆上分配的内存，在分配的堆的头信息里，ForceFlags这个标志位会被修改，因此可以通过判断这个标志位的方式来反调试。因为进程可以有很多的堆，因此只要检查任意一个堆的头信息就可以了，所以这个方法貌似很强大，例子如下：</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">bool HeapFlagsApproach()
+&#123;
+       int result &#x3D; 0;
+
+       __asm
+       &#123;
+      &#x2F;&#x2F; 进程的PEB
+              mov eax, fs:[30h]
+      &#x2F;&#x2F; 进程的堆，我们随便访问了一个堆，下面是默认的堆
+              mov eax, [eax + 18h]
+  &#x2F;&#x2F; 检查ForceFlag标志位，在没有被调试的情况下应该是
+              mov eax, [eax + 10h]
+              mov result, eax
+       &#125;
+
+       return result !&#x3D; 0;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>五、使用NtQueryInformationProcess函数</p>
+<p>NtQueryInformationProcess函数是一个未公开的API，它的第二个参数可以用来查询进程的调试端口。如果进程被调试，那么返回的端口值会是-1，否则就是其他的值。由于这个函数是一个未公开的函数，因此需要使用LoadLibrary和GetProceAddress的方法获取调用地址，示例代码如下：</p>
+<pre class="line-numbers language-C++" data-language="C++"><code class="language-C++">&#x2F;&#x2F; 声明一个函数指针。
+typedef NTSTATUS (WINAPI *NtQueryInformationProcessPtr)(
+       HANDLE processHandle,
+       PROCESSINFOCLASS processInformationClass,
+       PVOID processInformation,
+       ULONG processInformationLength,
+       PULONG returnLength);
+
+bool NtQueryInformationProcessApproach()
+&#123;
+       int debugPort &#x3D; 0;
+       HMODULE hModule &#x3D; LoadLibrary(TEXT(&quot;Ntdll.dll &quot;));
+       NtQueryInformationProcessPtr NtQueryInformationProcess &#x3D; (NtQueryInformationProcessPtr)GetProcAddress(hModule, &quot;NtQueryInformationProcess&quot;);
+       if ( NtQueryInformationProcess(GetCurrentProcess(), (PROCESSINFOCLASS)7, &amp;debugPort, sizeof(debugPort), NULL) )
+              printf(&quot;[ERROR NtQueryInformationProcessApproach] NtQueryInformationProcess failed\n&quot;);
+       else
+              return debugPort &#x3D;&#x3D; -1;
+
+       return false;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>六、NtSetInformationThread方法</p>
+<p>这个也是使用Windows的一个未公开函数的方法，你可以在当前线程里调用NtSetInformationThread，调用这个函数时，如果在第二个参数里指定0x11这个值（意思是ThreadHideFromDebugger），等于告诉操作系统，将所有附加的调试器统统取消掉。示例代码:</p>
+<pre class="line-numbers language-C++" data-language="C++"><code class="language-C++">&#x2F;&#x2F; 声明一个函数指针。
+typedef NTSTATUS (*NtSetInformationThreadPtr)(HANDLE threadHandle,
+       THREADINFOCLASS threadInformationClass,
+       PVOID threadInformation,
+       ULONG threadInformationLength);
+
+void NtSetInformationThreadApproach()
+&#123;
+      HMODULE hModule &#x3D; LoadLibrary(TEXT(&quot;ntdll.dll&quot;));
+      NtSetInformationThreadPtr NtSetInformationThread &#x3D; (NtSetInformationThreadPtr)GetProcAddress(hModule, &quot;NtSetInformationThread&quot;);
+
+      NtSetInformationThread(GetCurrentThread(), (THREADINFOCLASS)0x11, 0, 0);
+&#125;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>七、触发异常的方法</p>
+<p>这个技术的原理是，首先，进程使用SetUnhandledExceptionFilter函数注册一个未处理异常处理函数A，如果进程没有被调试的话，那么触发一个未处理异常，会导致操作系统将控制权交给先前注册的函数A；而如果进程被调试的话，那么这个未处理异常会被调试器捕捉，这样我们的函数A就没有机会运行了。</p>
+<p>这里有一个技巧，就是触发未处理异常的时候，如果跳转回原来代码继续执行，而不是让操作系统关闭进程。方案是在函数A里修改eip的值，因为在函数A的参数_EXCEPTION_POINTERS里，会保存当时触发异常的指令地址，所以在函数A里根据这个指令地址修改寄存器eip的值就可以了，示例代码如下：</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">&#x2F;&#x2F; 进程要注册的未处理异常处理程序A
+LONG WINAPI MyUnhandledExceptionFilter(struct _EXCEPTION_POINTERS *pei)
+&#123;
+       SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)
+              pei-&gt;ContextRecord-&gt;Eax);
+       &#x2F;&#x2F; 修改寄存器eip的值
+       pei-&gt;ContextRecord-&gt;Eip +&#x3D; 2;
+       &#x2F;&#x2F; 告诉操作系统，继续执行进程剩余的指令（指令保存在eip里），而不是关闭进程
+       return EXCEPTION_CONTINUE_EXECUTION;
+&#125;
+
+bool UnhandledExceptionFilterApproach()
+&#123;
+       SetUnhandledExceptionFilter(MyUnhandledExceptionFilter);
+       __asm
+       &#123;
+              &#x2F;&#x2F; 将eax清零
+              xor eax, eax
+              &#x2F;&#x2F; 触发一个除零异常
+              div eax
+       &#125;
+
+       return false;
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>八、调用DeleteFiber函数</p>
+<p>如果给DeleteFiber函数传递一个无效的参数的话，DeleteFiber函数除了会抛出一个异常以外，还是将进程的LastError值设置为具体出错原因的代号。然而，如果进程正在被调试的话，这个LastError值会被修改，因此如果调试器绕过了第七步里讲的反调试技术的话，我们还可以通过验证LastError值是不是被修改过来检测调试器的存在，示例代码：</p>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">bool DeleteFiberApproach()
+&#123;
+       char fib[1024] &#x3D; &#123;0&#125;;
+       &#x2F;&#x2F; 会抛出一个异常并被调试器捕获
+       DeleteFiber(fib);
+
+       &#x2F;&#x2F; 0x57的意思是ERROR_INVALID_PARAMETER
+       return (GetLastError() !&#x3D; 0x57);
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">ChenShang</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="http://example.com/posts/e4044868/">http://example.com/posts/e4044868/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">ChenShang</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/%E6%95%99%E7%A8%8B/">
+                                    <span class="chip bg-color">教程</span>
+                                </a>
+                            
+                                <a href="/tags/Python/">
+                                    <span class="chip bg-color">Python</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/posts/e4044869/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="爬虫被403怎么办">
+                        
+                        <span class="card-title">爬虫被403怎么办</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2021-01-28
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/python/" class="post-category">
+                                    python
+                                </a>
+                            
+                            <a href="/categories/python/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB/" class="post-category">
+                                    网络爬虫
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Python/">
+                        <span class="chip bg-color">Python</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/posts/9d07fe1e/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="如何在Github提交pr">
+                        
+                        <span class="card-title">如何在Github提交pr</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2021-01-22
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/github/" class="post-category">
+                                    github
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/github/">
+                        <span class="chip bg-color">github</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE' || selection.getRangeAt(0).commonAncestorContainer.nodeName === 'CODE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: WeiKe<br />'
+            + '文章作者: ChenShang<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="4931560478"
+                   fixed='true'
+                   autoplay='true'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+
+    <div class="container row center-align"
+         style="margin-bottom: 15px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2021</span>
+            
+            <span id="year">2019</span>
+            <a href="/about" target="_blank">ChenShang</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+                &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                        class="white-color">249.6k</span>
+            
+            
+            
+                
+            
+            
+                <span id="busuanzi_container_site_pv">
+                &nbsp;|&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;
+                    <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+                <span id="busuanzi_container_site_uv">
+                &nbsp;|&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;
+                    <span id="busuanzi_value_site_uv" class="white-color"></span>
+            </span>
+            
+            <br>
+
+            <!-- 运行天数提醒. -->
+            
+                <span id="sitetime"> Loading ...</span>
+                <script>
+                    var calcSiteTime = function () {
+                        var seconds = 1000;
+                        var minutes = seconds * 60;
+                        var hours = minutes * 60;
+                        var days = hours * 24;
+                        var years = days * 365;
+                        var today = new Date();
+                        var startYear = "2019";
+                        var startMonth = "5";
+                        var startDate = "11";
+                        var startHour = "0";
+                        var startMinute = "0";
+                        var startSecond = "0";
+                        var todayYear = today.getFullYear();
+                        var todayMonth = today.getMonth() + 1;
+                        var todayDate = today.getDate();
+                        var todayHour = today.getHours();
+                        var todayMinute = today.getMinutes();
+                        var todaySecond = today.getSeconds();
+                        var t1 = Date.UTC(startYear, startMonth, startDate, startHour, startMinute, startSecond);
+                        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+                        var diff = t2 - t1;
+                        var diffYears = Math.floor(diff / years);
+                        var diffDays = Math.floor((diff / days) - diffYears * 365);
+
+                        // 区分是否有年份.
+                        var language = 'zh-CN';
+                        if (startYear === String(todayYear)) {
+                            document.getElementById("year").innerHTML = todayYear;
+                            var daysTip = 'This site has been running for ' + diffDays + ' days';
+                            if (language === 'zh-CN') {
+                                daysTip = '本站已运行 ' + diffDays + ' 天';
+                            } else if (language === 'zh-HK') {
+                                daysTip = '本站已運行 ' + diffDays + ' 天';
+                            }
+                            document.getElementById("sitetime").innerHTML = daysTip;
+                        } else {
+                            document.getElementById("year").innerHTML = startYear + " - " + todayYear;
+                            var yearsAndDaysTip = 'This site has been running for ' + diffYears + ' years and '
+                                + diffDays + ' days';
+                            if (language === 'zh-CN') {
+                                yearsAndDaysTip = '本站已运行 ' + diffYears + ' 年 ' + diffDays + ' 天';
+                            } else if (language === 'zh-HK') {
+                                yearsAndDaysTip = '本站已運行 ' + diffYears + ' 年 ' + diffDays + ' 天';
+                            }
+                            document.getElementById("sitetime").innerHTML = yearsAndDaysTip;
+                        }
+                    }
+
+                    calcSiteTime();
+                </script>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/xixi-cmd" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:3225454747@qq.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=3225454747" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 3225454747" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+    <!--腾讯兔小巢-->
+    
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+<script>
+  var endLoading = function () {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loader').classList.add("loading");
+  }
+  window.addEventListener('load',endLoading);
+</script>
+<!-- hexo injector body_end start -->
+  <script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/hexo-github-calendar@1.20/hexo_githubcalendar.js"></script>
+  <script data-pjax>
+        function GithubCalendarConfig(){
+            var git_githubapiurl ="https://python-github-calendar-api.vercel.app/api?stsewd";
+            var git_color =['#e4dfd7', '#f9f4dc', '#f7e8aa', '#f7e8aa', '#f8df72', '#fcd217', '#fcc515', '#f28e16', '#fb8b05', '#d85916', '#f43e06'];
+            var git_user ="stsewd";
+            var parent_div_git = document.getElementById('indexCard');
+            var git_div_html = '<div class="container"><div class="card" style="width:100%;height:auto;padding:10px;"><div id="github_loading" style="width:10%;height:100%;margin:0 auto;display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg></div><div id="github_container"></div></div></div>';
+            if(parent_div_git && location.pathname =='/'){
+                console.log('已挂载github calendar')
+                // parent_div_git.innerHTML=git_div_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",git_div_html) // 有报错，但不影响使用(支持pjax跳转)
+            };
+            GithubCalendar(git_githubapiurl,git_color,git_user)
+        }
+        if(document.getElementById('indexCard')){
+            GithubCalendarConfig()
+        }
+    </script>
+    <style>#github_container{min-height:280px}@media screen and (max-width:650px) {#github_container{background-image:;min-height:0px}}</style>
+    <style></style><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+
+</html>
